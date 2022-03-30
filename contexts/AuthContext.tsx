@@ -1,6 +1,6 @@
 import Router from "next/router";
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { setCookie, parseCookies } from "nookies";
+import { setCookie, parseCookies, destroyCookie } from "nookies";
 import { api } from "../src/services/api";
 
 type AuthProviderProps = {
@@ -26,6 +26,14 @@ type AuthContextData = {
 
 export const AuthContext = createContext({} as AuthContextData)
 
+export function signOut() {
+        // erro que nao é token expirado => deslogar usuario
+        destroyCookie(undefined, 'nextauth.token')
+        destroyCookie(undefined, 'nextauth.refreshToken')
+
+        Router.push('/')    
+}
+
 export function AuthProvider({ children }: AuthProviderProps) {
 
     const [user, setUser] = useState<User>()
@@ -40,6 +48,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 const { email, permissions, roles } = response.data
 
                 setUser({ email, permissions, roles })
+            })
+            .catch(error => {
+                signOut()
             })
         }
 
