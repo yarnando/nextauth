@@ -8,7 +8,7 @@ export function withSSRAuth<P>(fn: GetServerSideProps<P>): GetServerSideProps {
     return async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<P>> => {
 
         const cookies = parseCookies(ctx);
-    
+
         if (!cookies['nextauth.token']) {
             return {
                 redirect: {
@@ -20,22 +20,22 @@ export function withSSRAuth<P>(fn: GetServerSideProps<P>): GetServerSideProps {
 
         try {
             return await fn(ctx) //essa 'fn' é a função que tá la no serversideprops
-        } catch (error) {
-    
-            if(error instanceof AuthTokenError) {
+        } catch (err) {
+
+            if (err instanceof AuthTokenError || !err?.response?.status) {
                 destroyCookie(ctx, 'nextauth.token')
                 destroyCookie(ctx, 'nextauth.refreshToken')
-        
+
                 return {
                     redirect: {
                         destination: '/',
-                        permanent: false,
+                        permanent: false
                     }
-                }                
+                }
             }
-            
-        } 
-        
+
+        }
+
     }
 
 }
