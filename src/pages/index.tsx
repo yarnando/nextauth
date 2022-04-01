@@ -2,7 +2,7 @@ import styles from '../styles/Home.module.css'
 
 import { FormEvent, useContext, useState } from "react"
 
-import { AuthContext } from '../../contexts/AuthContext'
+import { AuthContext } from '../contexts/AuthContext'
 import { GetServerSideProps } from 'next'
 import { parseCookies } from 'nookies'
 import { withSSRGuest } from '../utils/withSSRGuest'
