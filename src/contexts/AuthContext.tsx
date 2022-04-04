@@ -27,10 +27,14 @@ type AuthContextData = {
 
 export const AuthContext = createContext({} as AuthContextData)
 
-export function signOut() {
+let authChannel: BroadcastChannel
+
+export function signOut(broadcast: boolean = true) {
         // erro que nao é token expirado => deslogar usuario
         destroyCookie(undefined, 'nextauth.token')
         destroyCookie(undefined, 'nextauth.refreshToken')
+
+        if (broadcast) authChannel.postMessage('signOut')
 
         Router.push('/')    
 }
@@ -39,6 +43,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const [user, setUser] = useState<User>()
     const isAuthenticated = !!user;
+
+    useEffect( () => {
+
+        authChannel = new BroadcastChannel('auth')
+
+        authChannel.onmessage = (message) => {
+            switch (message.data) {
+                case 'signOut':
+                    signOut(false)
+                    break;
+                case "signIn":   
+                    window.location.replace("http://localhost:3000/dashboard");
+                    break;
+                default:
+                    break;
+            }
+        }
+    })
 
     useEffect( () => {
 
@@ -87,7 +109,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
             Router.push('/dashboard')
 
-            console.log(response.data);
+            authChannel.postMessage('signIn')
 
         } catch (error) {
             console.log(error);
