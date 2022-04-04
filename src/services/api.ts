@@ -52,13 +52,13 @@ export function setupAPIClient(ctx = undefined) {
                         failedRequestsQueue.forEach(request => request.onSuccess(token))
                         failedRequestsQueue = []
 
-                        if (process.browser) { // o next deixa essa variavel no process pra verificar se o codigo está sendo executado no browser ou do lado do servidor
-                            signOut();
-                        }
-
                     }).catch(err => {
                         failedRequestsQueue.forEach(request => request.onFailure(err))
                         failedRequestsQueue = []
+
+                        if (process.browser) { // o next deixa essa variavel no process pra verificar se o codigo está sendo executado no browser ou do lado do servidor
+                            signOut();
+                        }                        
                     }).finally(() => {
                         isRefreshing = false
                     })
@@ -82,12 +82,12 @@ export function setupAPIClient(ctx = undefined) {
                 if (process.browser) {
                     signOut();
                 } else {
-                    return Promise.reject()
+                    return Promise.reject(new AuthTokenError())
                 }
             }
         }
 
-        return Promise.reject(new AuthTokenError())
+        return Promise.reject(error)
     })
 
     return api;
